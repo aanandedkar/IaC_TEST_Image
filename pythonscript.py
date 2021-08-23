@@ -1,20 +1,41 @@
 import sys, json
 
 
+def print_error_message(result):
+    error_message = ""
+    failed_checks = False
+    if result.get("results").get("failedChecks"):
+        for r in result.get("results").get("failedChecks"):
+            line_range = "None"
+            keys = ["filePath", "cvControl", "criticality", "remediation"]
+            keys_names = ["File Name", "CV Control", "Criticality", "Remediation"]
+            error_message += "::error "
+            for k in range(0, len(keys)):
+                if r.get(keys[k]):
+                    if keys[k] == "cvControl":
+                        for c in r.get(keys[k]):
+                            error_message += "Qualys CID=" + c.get("cid") + ", "
+                            error_message += "Qualys Name=" + c.get("controlName")
+                        error_message += ", "
+                    else:
+                        error_message += keys_names[k] + "=" + r.get(keys[k]) + ", "
+                else:
+                    error_message += keys_names[k] + "=None" + ", "
+            if error_message.endswith(", "):
+                error_message = error_message[:-2]
+
+            print(error_message)
+            failed_checks = True
+            error_message = ""
+    return failed_checks
+
+
 def print_failed_checks(output):
     if output.get("status") != "FINISHED":
         exit(-1)
     failed_checks = False
     for result in output.get("result"):
-        #print(result.get("checkType"))
-        if result.get("results").get("failedChecks"):
-            for r in result.get("results").get("failedChecks"):
-                line_range = "None"
-                if r.get("fileLineRange"):
-                    line_range = str(r.get("fileLineRange")[0]) + "-" + str(r.get("fileLineRange")[1])
-                print("::error file="+ str(r.get("filePath")) +",line=" + line_range +"::Check_Id = "+ str(r.get("checkId")) +", Description = "+ str(r.get("checkName")) +", Remediation = "+ str(r.get("remediation")))
-
-            failed_checks = True
+        failed_checks = print_error_message(result)
     if failed_checks:
         exit(-1)
 

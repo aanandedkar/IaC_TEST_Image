@@ -10,7 +10,7 @@ then
         echo "There are no files/folders to scan."
         exit 0
     else
-        echo "Below files will be included in scan"
+        echo "From the below files, Only the files with extensions supported by IaC module are included in the scan."
         git diff --name-only --diff-filter=ACMRT HEAD^ HEAD
         foldername="qiacscanfolder_$(date +%Y%m%d%H%M%S)"
         mkdir $foldername
@@ -30,12 +30,15 @@ fi
  #Calling Iac CLI
  echo "Scanning Started at - $(date +"%Y-%m-%d %H:%M:%S")"
  qiac scan -a $URL -u $UNAME -p $PASS -d $SCANFOLDER -m json -n GitHubActionScan --tag [{\"BRANCH_NAME\":\"$GITHUB_REF\"},{\"REPOSITORY_NAME\":\"$GITHUB_REPOSITORY\"}] > /result.json
+ if [ $? -ne 0 ]; then
+    exit 1
+ fi
  echo "Scanning Completed at - $(date +"%Y-%m-%d %H:%M:%S")"
  #process result for annotation
  echo " "
- echo "\e[4mSCAN RESULT\e[0m"
+ echo "SCAN RESULT"
  cd /
- # cat result.json
+ #cat result.json
  python resultParser.py result.json
 
 

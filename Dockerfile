@@ -1,4 +1,9 @@
-FROM alpine:3.22.0
+FROM art-hq.intranet.qualys.com:5006/secure/distroless/debian12/zing/java-nonroot:24.08.300.0-2-jre17.0.13.0.101
+
+USER root
+
+WORKDIR /home/app
+ADD --chown=app:app ./target/github-was-action.jar /home/app/GitHubActionsQIAC-0.0.1-SNAPSHOT.jar
 
 # Install dependencies
 RUN apk add --no-cache \

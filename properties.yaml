@@ -11,9 +11,6 @@ image-path: qualys/qint/github-iac-action
 artifacts-to-archive: target/github-iac-action*.jar
 is-instrumentation-enabled: false
 
-build-scripts:
-  - script-path: jenkins_build_scripts/build_script.sh
-
 #build-additional-args: -Drelease.number="${BUILD_ID}"
 build-additional-args: -DskipTests=true
 

@@ -7,9 +7,7 @@ def nodeLabel = "slave"
 
 pipeline = loadPipelineTemplate(templateName, branch, nodeLabel)
 
-def customPreHookStep = {
-    sh "sed -i 's/<release.number>RELEASE<\/release.number>/<release.number>${BUILD_ID}<\/release.number>/g' ${WORKSPACE}/pom.xml"
-}
+def customPreHookStep = {sh "sed -i 's/<release.number>RELEASE<\\/release.number>/<release.number>${BUILD_ID}<\\/release.number>/g' ${WORKSPACE}/pom.xml"}
 
 HooksHelper hook = new HooksHelper()
 hook.addPreHook(StageName.BUILD, customPreHookStep)

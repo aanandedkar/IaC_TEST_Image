@@ -6,9 +6,22 @@ jdk: JDK_17
 
 #### Project properties ###
 project-name: github-iac-action
-image-path: qualys/qint/github-iac-action
-artifacts-to-archive: target/github-iac-action*.jar
-is-instrumentation-enabled: false
+artifacts-dir:
+project-type: binary
+is-copyToDev-enabled: false
+is-copyToRc-disabled: true
+signtools-checkout: true
+is-docker-scan-enabled: false
+
+# BlackDuck properties
+is-blackduck-enabled: true
+blackduck-project-name: apiintegration_github-iac-action
+blackduck-artifacts-to-scan: /
+
+is-coverity-enabled: true
+cov-project-name: QINT
+
+artifacts-to-archive: dist/github-iac-action*.jar
 
 #### Build Script variables ###
 build-scripts:
@@ -17,14 +30,9 @@ build-scripts:
 #build-additional-args: -Drelease.number="${BUILD_ID}"
 build-additional-args: -DskipTests=true
 
-# BlackDuck properties
-is-blackduck-enabled: true
-blackduck-project-name: apiintegration_github-iac-action
-blackduck-artifacts-to-scan: /
+
 
 ## Notification Properties ##
 email-notifications:
 teams-webhook-url: https://qualys.webhook.office.com/webhookb2/fb013c9c-125f-4fed-940f-0403fcaceb2e@81a9ef9a-9a98-4b00-886a-895a603bc029/IncomingWebhook/1d8267aff251406ba66d2f0b8cd9cc86/8769138b-5890-4644-ab24-5826018693e4
 
-is-coverity-enabled: true
-cov-project-name: QINT

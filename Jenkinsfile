@@ -8,4 +8,4 @@ def nodeLabel = "slave"
 pipeline = loadPipelineTemplate(templateName, branch, nodeLabel)
 
 
-//pipeline.runPipeline("properties.yaml", nodeLabel)
+pipeline.runPipeline("properties.yaml", nodeLabel)

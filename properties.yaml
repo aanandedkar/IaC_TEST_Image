@@ -1,5 +1,5 @@
 ### Tools #####
-maven: apache-maven-3.9.4
+maven: apache-maven-3.6.3
 jdk: JDK_17
 
   ### Source code properties ###
@@ -10,6 +10,9 @@ project-name: github-iac-action
 image-path: qualys/qint/github-iac-action
 artifacts-to-archive: target/github-iac-action*.jar
 is-instrumentation-enabled: false
+
+build-scripts:
+  - script-path: jenkins_build_scripts/build_script.sh
 
 #build-additional-args: -Drelease.number="${BUILD_ID}"
 build-additional-args: -DskipTests=true

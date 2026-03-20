@@ -9,7 +9,6 @@ jdk: JDK_17
 #### Project properties ###
 project-name: github-iac-action
 artifacts-dir:
-project-type: binary
 is-copyToDev-enabled: false
 is-copyToRc-disabled: true
 signtools-checkout: true

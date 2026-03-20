@@ -1,5 +1,7 @@
 ### Tools #####
+maven: apache-maven-3.9.4
 jdk: JDK_17
+
 
   ### Source code properties ###
   #signtools-checkout: true
@@ -28,7 +30,7 @@ build-scripts:
   - script-path: jenkins_build_scripts/build_script.sh
 
 #build-additional-args: -Drelease.number="${BUILD_ID}"
-build-additional-args: -DskipTests=true
+
 
 
 

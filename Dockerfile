@@ -1,5 +1,4 @@
-FROM art-hq.intranet.qualys.com:5006/secure/oraclelinux:8
-
+FROM alpine:3.22.0
 # Install dependencies
 RUN apk add --no-cache \
     python3 \

@@ -1,26 +1,12 @@
 FROM art-hq.intranet.qualys.com:5006/secure/oraclelinux:8
 
-# Install dependencies
-RUN dnf install -y \
-    python3 \
-    python3-pip \
-    gcc \
-    gcc-c++ \
-    make \
-    python3-devel \
-    libffi-devel \
-    git \
-    && dnf clean all
+# Install python3, git, pip
+RUN yum install -y python3.11 git && yum clean all
+RUN python3 -m ensurepip
 
-# Create and activate a virtual environment
-RUN python3 -m venv /venv
-ENV PATH="/venv/bin:$PATH"
-
-# Upgrade pip and setuptools within the virtual environment
-RUN pip install --no-cache --upgrade pip setuptools
-
-# Install Python packages
-RUN pip install Qualys-IaC-Security
+# Install pip, setuptools, and Qualys-IaC-Security from Nexus
+RUN pip3 install --no-cache-dir --upgrade pip setuptools -i https://nexus3.intranet.qualys.com/nexus/repository/dev-pypi/simple
+RUN pip3 install Qualys-IaC-Security -i https://nexus3.intranet.qualys.com/nexus/repository/dev-pypi/simple
 
 # Copy application files
 COPY entrypoint.sh /entrypoint.sh

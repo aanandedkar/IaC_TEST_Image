@@ -7,11 +7,12 @@ jdk: JDK_17
 
 #### Project properties ###
 project-name: github-iac-action
-artifacts-dir:
+artifacts-dir: $JENKINS_HOME/jobs/github-iac-action/builds/${BUILD_ID}/archive
+project-type: binary
 is-copyToDev-enabled: false
 is-copyToRc-disabled: true
 signtools-checkout: true
-is-docker-scan-enabled: false
+is-docker-scan-enabled: true
 
 # BlackDuck properties
 is-blackduck-enabled: true
@@ -21,12 +22,13 @@ blackduck-artifacts-to-scan: /
 is-coverity-enabled: true
 cov-project-name: QINT
 
-artifacts-to-archive: dist/github-iac-action*.jar
 
 #### Build Script variables ###
 build-scripts:
   - script-path: jenkins_build_scripts/build_script.sh
 
+post-build-scripts:
+  - script-path: jenkins_build_scripts/post_build_script.sh
 #build-additional-args: -Drelease.number="${BUILD_ID}"
 
 

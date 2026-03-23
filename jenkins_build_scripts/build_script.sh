@@ -1,17 +1,6 @@
 #!/bin/bash
-set -e
+set -ex
 
-export HTTPS_PROXY=http://10.44.25.42:8080
-export HTTP_PROXY=http://10.44.25.42:8080
+source "${WORKSPACE}/jenkins_build_scripts/variables"
 
-PYTHON=/bin/python3.9
-
-echo "Using Python:"
-$PYTHON --version
-
-$PYTHON -m pip install --user \
-	"setuptools==82.0.0"\
-    "wheel==0.46.3" \
-  	"build<1.0"
-
-$PYTHON -m build --no-isolation
+docker build -t ${full_image_names} .

@@ -1,4 +1,4 @@
-FROM alpine:3.22.0
+FROM art-hq.intranet.qualys.com:5006/secure/oraclelinux:8
 
 # Install dependencies
 RUN apk add --no-cache \

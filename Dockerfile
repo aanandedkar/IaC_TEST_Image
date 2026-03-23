@@ -1,12 +1,16 @@
-FROM alpine:3.22.0
+FROM art-hq.intranet.qualys.com:5006/secure/oraclelinux:8
+
 # Install dependencies
-RUN apk add --no-cache \
+RUN dnf install -y \
     python3 \
-    py3-pip \
-    build-base \
-    python3-dev \
-    libffi-dev \
-    git
+    python3-pip \
+    gcc \
+    gcc-c++ \
+    make \
+    python3-devel \
+    libffi-devel \
+    git \
+    && dnf clean all
 
 # Create and activate a virtual environment
 RUN python3 -m venv /venv

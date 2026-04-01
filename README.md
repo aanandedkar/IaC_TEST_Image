@@ -4,18 +4,21 @@
 ## Description
 Qualys IaC GitHub action is used to scan the Infrastructure-as-Code templates in your GitHub repository using Qualys CloudView (Cloud Security Assessment). It checks for security issues using the Qualys Cloud Infrastructure as Code Scan and displays the failed checks as pipeline annotations.
 
-Note: Qualys IaC GitHub action supports below file formats for scanning:- <br />
-`Terraform supported extensions` - .tf, .json <br />
-`CloudFormation supported extensions` - .template, .yml, .yaml
+Note: Qualys IaC GitHub action supports below file formats for scanning.
+* Terraform supported extensions: `.tf`, `.json`
+* CloudFormation supported extensions: `.template`, `.yml`, `.yaml`
 
 
 ## How to use the Qualys IaC GitHub Action
 
 1. Visit [GitHub configuration a workflow](https://help.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow) to enable Github Action in your repository.
 2. Subscribe to Qualys CloudView and obtain Qualys credentials.
-3. Create GitHub Secrets for Qualys URL, Qualys Username and Qualys Password.
+3. Create GitHub Secrets for Qualys URL and authentication credentials.
+   - For **Basic Authentication**: Create secrets for `URL`, `UNAME`, and `PASS`.
+   - For **OIDC Authentication**: Create secrets for `URL`, `CLIENTID`, and `CLIENTSECRET`.
+
 Refer to [Encrypted secrets](https://docs.github.com/en/actions/reference/encrypted-secrets) for more details on how to setup secrets.
-4. Configure your workflow. In the actions section use `Qualys/QualysTrials@main`
+4. Configure your workflow. In the actions section use `Qualys/github_action_qiac@main`
 Note: the `actions/checkout` step is required to run before the scan action, otherwise the action does not have access to the IaC files to be scanned.
 5. Optionally, supply parameters to customize GitHub action behaviour.
 
@@ -35,12 +38,12 @@ jobs:
         name: Qualys IaC Scan
         steps:
           - name: Checkout
-            uses: actions/checkout@v2 
+            uses:   actions/checkout@v5 
             with:
                 fetch-depth: 0
     
           - name: Qualys IAC scan action step
-            uses: Qualys/QualysTrials@main
+            uses: Qualys/github_action_qiac@main
             id: qiac
             env:
                 URL: ${{ secrets.URL }}
@@ -62,12 +65,12 @@ jobs:
         name: Qualys IaC Scan
         steps:
           - name: Checkout
-            uses: actions/checkout@v2 
+            uses:   actions/checkout@v5 
             with:
                 fetch-depth: 0
     
           - name: Qualys IAC scan action step
-            uses: Qualys/QualysTrials@main
+            uses: Qualys/github_action_qiac@main
             id: qiac
             env:
                 URL: ${{ secrets.URL }}
@@ -76,7 +79,7 @@ jobs:
 ```
 
 ### Scan IaC in your repository on scheduled event
-Note: In case of `scheduled` event, the path given in `directory` input will be scanned. In case the path is not given, the `entire repository` will be scanned.
+Note: In case of `scheduled` event, the path given in `directory` input will be scanned. In case the path is not given, the **entire repository** will be scanned.
 ```yaml
 name: Qualys IAC Scan 
 on:
@@ -88,12 +91,12 @@ jobs:
         name: Qualys IaC Scan
         steps:
           - name: Checkout
-            uses: actions/checkout@v2 
+            uses:   actions/checkout@v5 
             with:
                 fetch-depth: 0
     
           - name: Qualys IAC scan action step
-            uses: Qualys/QualysTrials@main
+            uses: Qualys/github_action_qiac@main
             id: qiac
             env:
                 URL: ${{ secrets.URL }}
@@ -114,12 +117,12 @@ jobs:
         name: Qualys IaC Scan
         steps:
           - name: Checkout
-            uses: actions/checkout@v2 
+            uses:   actions/checkout@v5 
             with:
                 fetch-depth: 0
     
           - name: Qualys IAC scan action step
-            uses: Qualys/QualysTrials@main
+            uses: Qualys/github_action_qiac@main
             id: qiac
             env:
                 URL: ${{ secrets.URL }}
@@ -129,11 +132,116 @@ jobs:
               directory: 'path of directory to scan (optional)'
 ```
 
+### Scan IaC in your repository on push/pull request/scheduled event with the step of uploading SARIF file on GitHub.
+Note: Upload SARIF file Step will upload your scan report on GitHub and it will show all security alerts(if any) under **Security -> Code scanning alerts** tab.
+```yaml
+name: Qualys IAC Scan 
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main 
+  schedule:
+    - cron:  '*/5 * * * *'
+jobs:
+    Qualys_iac_scan:
+        runs-on: ubuntu-latest
+        name: Qualys IaC Scan
+        steps:
+          - name: Checkout
+            uses:   actions/checkout@v5 
+            with:
+                fetch-depth: 0
+    
+          - name: Qualys IAC scan action step
+            uses: Qualys/github_action_qiac@main
+            id: qiac
+            env:
+                URL: ${{ secrets.URL }}
+                UNAME: ${{ secrets.USERNAME }}
+                PASS: ${{ secrets.PASSWORD }}
+            with:
+              directory: 'path of directory to scan (optional)'
+          
+          - name: Upload SARIF file
+            uses: github/codeql-action/upload-sarif@v3
+            if: always() 
+            with:
+                 sarif_file: response.sarif
+
+```
+
 ## Prerequisites for Qualys IaC GithHub Action
 1. Valid Qualys Credentials and subscription of Qualys CloudView module.
-2. Use of `actions/checkout@v2` with ` fetch-depth: 0` before calling Qualys IaC GitHub action.
-3. `Qualys URL, Qualys Username , Qualys Password` to be added in `secrets` and provided as `environment variables` to the Qualys IaC GitHub action.
+2. Use of `  actions/checkout@v5` with ` fetch-depth: 0` before calling Qualys IaC GitHub action.
+3. Authentication credentials to be added in `secrets` and provided as `environment variables` to the Qualys IaC GitHub action:
+   - For **Basic Authentication**: `URL`, `UNAME`, `PASS`
+   - For **OIDC Authentication**: `URL`, `CLIENTID`, `CLIENTSECRET`, and set `AUTHTYPE` to `OIDC`
 4. Self-hosted runners must use a Linux operating system and have Docker installed to run this action.
+
+## Optional environment variable
+| Parameter  | Description | Required | Default Value | Parameter Type |
+| -----------| -------------------------------------------------------------------------------------------------------- | ------------- | ------------- | ------------- |
+| AUTHTYPE | Authentication type. Set to `OIDC` for OIDC authentication. If not set or any other value, basic authentication (username/password) is used. | No | (empty) | Variable |
+| CLIENTID | Qualys Client ID for OIDC authentication. Required when `AUTHTYPE` is set to `OIDC`. | Conditional | - | Variable |
+| CLIENTSECRET | Qualys Client Secret for OIDC authentication. Required when `AUTHTYPE` is set to `OIDC`. | Conditional | - | Variable |
+| failBuild | This parameter enables marking the workflow as failed or successful based on user input.<br> <b>Parameter Behavior:</b><br><ol><li><b>true -</b><ul><li>If the control check fails → the workflow will be marked as Failed</li><li>If the control check passes → the workflow will be marked as Passed</li></ul></li><li><b>false -</b><ul><li>The workflow will always be marked as Passed, regardless of whether the control check passes or fails.</li></ul></li></ol>  | No | true | Variable |
+
+### Example - `failBuild` set to `false`
+```yaml
+name: Qualys IAC Scan 
+on:
+  push:
+    branches:
+      - main
+jobs:
+    Qualys_iac_scan:
+        runs-on: ubuntu-latest
+        name: Qualys IaC Scan
+        steps:
+          - name: Checkout
+            uses:   actions/checkout@v5 
+            with:
+                fetch-depth: 0
+    
+          - name: Qualys IAC scan action step
+            uses: Qualys/github_action_qiac@main
+            id: qiac
+            env:
+                URL: ${{ secrets.URL }}
+                UNAME: ${{ secrets.UNAME }}
+                PASS: ${{ secrets.PASS }}
+                failBuild: false
+```
+
+### Example - OIDC Authentication
+```yaml
+name: Qualys IAC Scan 
+on:
+  push:
+    branches:
+      - main
+jobs:
+    Qualys_iac_scan:
+        runs-on: ubuntu-latest
+        name: Qualys IaC Scan
+        steps:
+          - name: Checkout
+            uses:   actions/checkout@v5 
+            with:
+                fetch-depth: 0
+    
+          - name: Qualys IAC scan action step
+            uses: Qualys/github_action_qiac@main
+            id: qiac
+            env:
+                URL: ${{ secrets.URL }}
+                AUTHTYPE: OIDC
+                CLIENTID: ${{ secrets.CLIENTID }}
+                CLIENTSECRET: ${{ secrets.CLIENTSECRET }}
+```
 
 ## GitHub action Parameters
 

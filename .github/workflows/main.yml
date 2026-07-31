@@ -1,0 +1,84 @@
+name: Qualys WAS Scan
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  # 1. Run Qualys WAS scan directly - no dind, no docker-compose
+  qualys_was_scan:
+    name: Qualys WAS Scan
+    runs-on: ubuntu-latest
+    container:
+      image: aanandedkarqualys/qwas_integration_cli:1.1.0
+      options: --user root
+    env:
+      PLATFORM: ${{ vars.PLATFORM }}
+      AUTH_TYPE: ${{ vars.AUTH_TYPE }}
+      QUALYS_USERNAME: ${{ vars.QUALYS_USERNAME }}
+      QUALYS_PASSWORD: ${{ secrets.QUALYS_PASSWORD }}
+      CLIENT_ID: ${{ vars.CLIENT_ID }}
+      CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+      IDP_TOKEN_URL: ${{ vars.IDP_TOKEN_URL }}
+      IDP_SCOPE: ${{ vars.IDP_SCOPE }}
+      IDP_AUDIENCE: ${{ vars.IDP_AUDIENCE }}
+      WEBAPP_ID: ${{ vars.WEBAPP_ID }}
+      SCAN_NAME: ${{ vars.SCAN_NAME }}
+      SCAN_TYPE: ${{ vars.SCAN_TYPE }}
+      AUTH_RECORD: ${{ vars.AUTH_RECORD || 'none' }}
+      AUTH_RECORD_ID: ${{ vars.AUTH_RECORD_ID }}
+      OPTION_PROFILE: ${{ vars.OPTION_PROFILE || 'useDefault' }}
+      OPTION_PROFILE_ID: ${{ vars.OPTION_PROFILE_ID }}
+      CANCEL_OPTION: ${{ vars.CANCEL_OPTION || 'false' }}
+      CANCEL_HOURS: ${{ vars.CANCEL_HOURS || '0' }}
+      SEVERITY_CHECK: ${{ vars.SEVERITY_CHECK || 'false' }}
+      SEVERITY_LEVEL: ${{ vars.SEVERITY_LEVEL || '0' }}
+      FAIL_ON_SCAN_ERROR: ${{ vars.FAIL_ON_SCAN_ERROR || 'false' }}
+      WAIT_FOR_RESULT: ${{ vars.WAIT_FOR_RESULT || 'true' }}
+      INTERVAL: ${{ vars.INTERVAL || '5' }}
+      EXCLUDE: ${{ vars.EXCLUDE || '0' }}
+      TIMEOUT: ${{ vars.TIMEOUT || '350' }}
+      FILE_TYPE: ${{ vars.FILE_TYPE || 'PDF' }}
+    steps:
+      - name: Launch Qualys WAS scan
+        run: |
+          echo "Launching Qualys WAS scan..."
+          mkdir -p outputs
+          java -jar /home/app/qint-was-client.jar
+
+      - name: Upload scan artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qualys-was-outputs
+          path: |
+            outputs/
+            exitCode.txt
+          retention-days: 30
+          if-no-files-found: warn
+
+  # 2. Evaluate exit code from Qualys execution to pass/fail workflow
+  check_results:
+    name: Check Scan Results
+    runs-on: ubuntu-latest
+    needs: qualys_was_scan
+    if: always()
+    steps:
+      - name: Download scan artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: qualys-was-outputs
+
+      - name: Evaluate exit code
+        run: |
+          if [ -f outputs/exitCode.txt ]; then
+            EXIT_CODE=$(cat outputs/exitCode.txt | tr -d '\r\n')
+            echo "Qualys WAS container finished with exit code: $EXIT_CODE"
+            if [ "$EXIT_CODE" -ne 0 ]; then
+              echo "Workflow failed due to Qualys WAS severity check or scan error."
+              exit 1
+            fi
+          else
+            echo "Warning: exitCode.txt not found in outputs directory."
+          fi

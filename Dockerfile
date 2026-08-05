@@ -3,7 +3,7 @@ FROM oraclelinux:8
 # Install python3, git, pip
 RUN yum install -y python3.11 git && yum clean all
 RUN python3 -m ensurepip
-
+ 
 # Install pip and setuptools
 RUN pip3 install --no-cache-dir --upgrade pip setuptools
 

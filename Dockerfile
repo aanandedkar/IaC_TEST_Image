@@ -4,9 +4,12 @@ FROM art-hq.intranet.qualys.com:5006/secure/oraclelinux:8
 RUN yum install -y python3.11 git && yum clean all
 RUN python3 -m ensurepip
 
-# Install pip, setuptools, and Qualys-IaC-Security from Nexus
-RUN pip3 install --no-cache-dir --upgrade pip setuptools -i https://nexus3.intranet.qualys.com/nexus/repository/dev-pypi/simple
-RUN pip3 install Qualys-IaC-Security -i https://nexus3.intranet.qualys.com/nexus/repository/dev-pypi/simple
+# Install pip and setuptools
+RUN pip3 install --no-cache-dir --upgrade pip setuptools
+
+# Copy and install Qualys-IaC-Security from local .whl file
+COPY qualys_iac_security-1.0.9.0-py3-none-any.whl /tmp/qualys_iac_security.whl
+RUN pip3 install /tmp/qualys_iac_security.whl && rm /tmp/qualys_iac_security.whl
 
 # Copy application files
 COPY entrypoint.sh /entrypoint.sh

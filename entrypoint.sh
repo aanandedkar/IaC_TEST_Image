@@ -118,5 +118,5 @@ fi
  echo "SCAN RESULT"
  cd /
  #cat result.json
- python resultParser.py result.json
+ python3 resultParser.py result.json
 

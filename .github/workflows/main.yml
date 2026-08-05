@@ -16,19 +16,19 @@ jobs:
       image: aanandedkarqualys/qiac:1.0.9.0-test
       options: --user root
       env:
-        QUALYS_URL: ${{ secrets.QUALYS_URL }}
-        AUTH_TYPE: ${{ secrets.AUTH_TYPE }}
+        QUALYS_URL: ${{ vars.QUALYS_URL }}
+        AUTH_TYPE: ${{ vars.AUTH_TYPE }}
         # For BasicAuth
-        QUALYS_USERNAME: ${{ secrets.QUALYS_USERNAME }}
+        QUALYS_USERNAME: ${{ vars.QUALYS_USERNAME }}
         QUALYS_PASSWORD: ${{ secrets.QUALYS_PASSWORD }}
         # For OIDC / IDP
-        QUALYS_CLIENTID: ${{ secrets.QUALYS_CLIENTID }}
+        QUALYS_CLIENTID: ${{ vars.QUALYS_CLIENTID }}
         QUALYS_CLIENTSECRET: ${{ secrets.QUALYS_CLIENTSECRET }}
         # For IDP only
-        TOKEN_URL: ${{ secrets.TOKEN_URL }}
-        SCOPE: ${{ secrets.SCOPE }}
-        AUDIENCE: ${{ secrets.AUDIENCE }}
-        BREAK_ON_ERROR: ${{ secrets.BREAK_ON_ERROR }}
+        TOKEN_URL: ${{ vars.TOKEN_URL }}
+        SCOPE: ${{ vars.SCOPE }}
+        AUDIENCE: ${{ vars.AUDIENCE }}
+        BREAK_ON_ERROR: ${{ vars.BREAK_ON_ERROR }}
 
     steps:
       - name: Checkout repository

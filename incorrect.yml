@@ -1,0 +1,11 @@
+Resources:
+  DocDBClusterParamterGroup:
+    Type: "AWS::DocDB::DBClusterParameterGroup"
+    Properties:
+      Description: Test Parameter group
+      Family: doewgmmbrbr
+rgvf
+
+dfg
+
+

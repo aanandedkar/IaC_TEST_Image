@@ -8,8 +8,8 @@ RUN python3 -m ensurepip
 RUN pip3 install --no-cache-dir --upgrade pip setuptools
 
 # Copy and install Qualys-IaC-Security from local .whl file
-COPY qualys_iac_security-1.0.9.0-py3-none-any.whl /tmp/qualys_iac_security.whl
-RUN pip3 install /tmp/qualys_iac_security.whl && rm /tmp/qualys_iac_security.whl
+COPY qualys_iac_security-1.0.9.0-py3-none-any.whl /tmp/
+RUN pip3 install /tmp/qualys_iac_security-1.0.9.0-py3-none-any.whl && rm /tmp/qualys_iac_security-1.0.9.0-py3-none-any.whl
 
 # Copy application files
 COPY entrypoint.sh /entrypoint.sh

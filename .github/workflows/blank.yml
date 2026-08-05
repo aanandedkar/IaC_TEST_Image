@@ -1,8 +1,6 @@
 name: Qualys IAC Scan 
 on:
-  push:
-    branches:
-      - feature/QINT-22485-IDP
+  workflow_dispatch:
 jobs:
     Qualys_iac_scan:
         runs-on: ubuntu-latest

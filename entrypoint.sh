@@ -10,13 +10,17 @@ fi
 
 AUTHTYPE_UPPER=$(echo "$AUTHTYPE" | tr '[:lower:]' '[:upper:]')
 
-if [ "$AUTHTYPE_UPPER" = "OIDC" ]; then
+if [ "$AUTHTYPE_UPPER" = "OIDC" ] || [ "$AUTHTYPE_UPPER" = "IDP" ]; then
   if [ -z "${CLIENTID}" ]; then
     echo "[ERROR] Please set your Qualys Client ID in CLIENTID environment variable."
     exit 1
   fi
   if [ -z "${CLIENTSECRET}" ]; then
     echo "[ERROR] Please set your Qualys Client Secret in CLIENTSECRET environment variable."
+    exit 1
+  fi
+  if [ "$AUTHTYPE_UPPER" = "IDP" ] && [ -z "${TOKEN_URL}" ]; then
+    echo "[ERROR] Please set your Token URL in TOKEN_URL environment variable for IDP authentication."
     exit 1
   fi
   UNAME=$CLIENTID
@@ -71,6 +75,9 @@ fi
  if [ "$AUTHTYPE_UPPER" = "OIDC" ]; then
     echo "[INFO] AUTHTYPE: OIDC"
     qiac scan -a $URL -u $UNAME -p $PASS -d $SCANFOLDER -m json -n GitHubActionScan --branch $GITHUB_REF --gitrepo $GITHUB_REPOSITORY --source $SOURCE_UUID -at OIDC > /result.json
+ elif [ "$AUTHTYPE_UPPER" = "IDP" ]; then
+    echo "[INFO] AUTHTYPE: IDP"
+    qiac scan -a $URL -u $UNAME -p $PASS -d $SCANFOLDER -m json -n GitHubActionScan --branch $GITHUB_REF --gitrepo $GITHUB_REPOSITORY --source $SOURCE_UUID -at IDP --token_url "$TOKEN_URL" --scope "$SCOPE" --audience "$AUDIENCE" > /result.json
  else
     qiac scan -a $URL -u $UNAME -p $PASS -d $SCANFOLDER -m json -n GitHubActionScan --branch $GITHUB_REF --gitrepo $GITHUB_REPOSITORY --source $SOURCE_UUID > /result.json
  fi
@@ -87,6 +94,8 @@ fi
     echo "[INFO] Scan ID:" $SCAN_ID
     if [ "$AUTHTYPE_UPPER" = "OIDC" ]; then
        qiac getresult -a $URL -u $UNAME -p $PASS -i $SCAN_ID -m SARIF -s -at OIDC > /raw_result.sarif
+    elif [ "$AUTHTYPE_UPPER" = "IDP" ]; then
+       qiac getresult -a $URL -u $UNAME -p $PASS -i $SCAN_ID -m SARIF -s -at IDP --token_url "$TOKEN_URL" --scope "$SCOPE" --audience "$AUDIENCE" > /raw_result.sarif
     else
        qiac getresult -a $URL -u $UNAME -p $PASS -i $SCAN_ID -m SARIF -s > /raw_result.sarif
     fi

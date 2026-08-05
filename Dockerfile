@@ -1,4 +1,4 @@
-FROM art-hq.intranet.qualys.com:5006/secure/oraclelinux:8
+FROM oraclelinux:8
 
 # Install python3, git, pip
 RUN yum install -y python3.11 git && yum clean all

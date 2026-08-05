@@ -1,5 +1,9 @@
 name: Qualys IAC Scan 
 on:
+  push:
+    branches: [ main, feature/QINT-22485-IDP ]
+  pull_request:
+    branches: [ main, feature/QINT-22485-IDP ]
   workflow_dispatch:
 jobs:
     Qualys_iac_scan:

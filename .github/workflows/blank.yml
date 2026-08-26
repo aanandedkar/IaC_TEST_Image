@@ -20,7 +20,7 @@ jobs:
             id: qiac
             env:
                 URL: ${{ secrets.URL }}
-                AUTHTYPE: IDP
+                AUTHTYPE: ${{ vars.AUTH_TYPE }}
                 CLIENTID: ${{ secrets.CLIENTID }}
                 CLIENTSECRET: ${{ secrets.CLIENTSECRET }}
                 TOKEN_URL: ${{ secrets.TOKEN_URL }}

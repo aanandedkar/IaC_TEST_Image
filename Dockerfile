@@ -27,7 +27,7 @@ COPY resultParser.py /resultParser.py
 RUN chmod +x /entrypoint.sh
 
 # Create a non-root user qiac
-RUN adduser -u 1001 qiac
+RUN adduser -D -u 1001 qiac
 USER qiac
 
 # Set the container entrypoint

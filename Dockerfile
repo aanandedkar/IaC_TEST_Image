@@ -1,15 +1,23 @@
-FROM oraclelinux:8
+FROM alpine:3.22.0
 
-# Install python3, git, pip
-RUN yum install -y python3.11 git && yum clean all
-RUN python3 -m ensurepip
- 
-# Install pip and setuptools
-RUN pip3 install --no-cache-dir --upgrade pip setuptools
+# Install dependencies
+RUN apk add --no-cache \
+    python3>=3.10 \
+    py3-pip \
+    build-base \
+    python3-dev \
+    libffi-dev \
+    git
 
-# Copy and install Qualys-IaC-Security from local .whl file
-COPY qualys_iac_security-1.0.9.0-py3-none-any.whl /tmp/
-RUN pip3 install /tmp/qualys_iac_security-1.0.9.0-py3-none-any.whl && rm /tmp/qualys_iac_security-1.0.9.0-py3-none-any.whl
+# Create and activate a virtual environment
+RUN python3 -m venv /venv
+ENV PATH="/venv/bin:$PATH"
+
+# Upgrade pip and setuptools within the virtual environment
+RUN pip3 install --no-cache --upgrade pip setuptools
+
+# Install Python packages
+RUN pip3 install --ignore-requires-python Qualys-IaC-Security
 
 # Copy application files
 COPY entrypoint.sh /entrypoint.sh

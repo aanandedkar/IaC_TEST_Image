@@ -18,5 +18,9 @@ COPY resultParser.py /resultParser.py
 # Make the entrypoint script executable
 RUN chmod +x /entrypoint.sh
 
+# Create a non-root user qiac
+RUN adduser qiac
+USER qiac
+
 # Set the container entrypoint
 ENTRYPOINT ["sh", "/entrypoint.sh"]

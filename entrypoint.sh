@@ -118,5 +118,5 @@ fi
  echo "SCAN RESULT"
  
  #cat result.json
- python /resultParser.py /tmp/result.json
+ python3 /resultParser.py /tmp/result.json
 

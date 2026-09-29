@@ -74,12 +74,12 @@ fi
  echo "[INFO] Scanning Started at - $(date +"%Y-%m-%d %H:%M:%S")"
  if [ "$AUTHTYPE_UPPER" = "OIDC" ]; then
     echo "[INFO] AUTHTYPE: OIDC"
-    qiac scan -a $URL -u $UNAME -p $PASS -d $SCANFOLDER -m json -n GitHubActionScan --branch $GITHUB_REF --gitrepo $GITHUB_REPOSITORY --source $SOURCE_UUID -at OIDC > /result.json
+    qiac scan -a $URL -u $UNAME -p $PASS -d $SCANFOLDER -m json -n GitHubActionScan --branch $GITHUB_REF --gitrepo $GITHUB_REPOSITORY --source $SOURCE_UUID -at OIDC | tee /tmp/result.json
  elif [ "$AUTHTYPE_UPPER" = "IDP" ]; then
     echo "[INFO] AUTHTYPE: IDP"
-    qiac scan -a $URL -u $UNAME -p $PASS -d $SCANFOLDER -m json -n GitHubActionScan --branch $GITHUB_REF --gitrepo $GITHUB_REPOSITORY --source $SOURCE_UUID -at IDP --token_url "$TOKEN_URL" --scope "$SCOPE" --audience "$AUDIENCE" > /result.json
+    qiac scan -a $URL -u $UNAME -p $PASS -d $SCANFOLDER -m json -n GitHubActionScan --branch $GITHUB_REF --gitrepo $GITHUB_REPOSITORY --source $SOURCE_UUID -at IDP --token_url "$TOKEN_URL" --scope "$SCOPE" --audience "$AUDIENCE" | tee /tmp/result.json
  else
-    qiac scan -a $URL -u $UNAME -p $PASS -d $SCANFOLDER -m json -n GitHubActionScan --branch $GITHUB_REF --gitrepo $GITHUB_REPOSITORY --source $SOURCE_UUID > /result.json
+    qiac scan -a $URL -u $UNAME -p $PASS -d $SCANFOLDER -m json -n GitHubActionScan --branch $GITHUB_REF --gitrepo $GITHUB_REPOSITORY --source $SOURCE_UUID | tee /tmp/result.json
  fi
  if [ $? -ne 0 ]; then
     exit 1
@@ -87,17 +87,17 @@ fi
 
  LEN=${#SCANID_STR}
  let "LEN+=1"
- SCAN_ID="$(grep "$SCANID_STR" /result.json  | cut -c $LEN-)"
+ SCAN_ID="$(grep "$SCANID_STR" /tmp/result.json  | cut -c $LEN-)"
  
  if [[ ! -z "$SCAN_ID" ]]
  then
     echo "[INFO] Scan ID:" $SCAN_ID
     if [ "$AUTHTYPE_UPPER" = "OIDC" ]; then
-       qiac getresult -a $URL -u $UNAME -p $PASS -i $SCAN_ID -m SARIF -s -at OIDC > /raw_result.sarif
+       qiac getresult -a $URL -u $UNAME -p $PASS -i $SCAN_ID -m SARIF -s -at OIDC > /tmp/raw_result.sarif
     elif [ "$AUTHTYPE_UPPER" = "IDP" ]; then
-       qiac getresult -a $URL -u $UNAME -p $PASS -i $SCAN_ID -m SARIF -s -at IDP --token_url "$TOKEN_URL" --scope "$SCOPE" --audience "$AUDIENCE" > /raw_result.sarif
+       qiac getresult -a $URL -u $UNAME -p $PASS -i $SCAN_ID -m SARIF -s -at IDP --token_url "$TOKEN_URL" --scope "$SCOPE" --audience "$AUDIENCE" > /tmp/raw_result.sarif
     else
-       qiac getresult -a $URL -u $UNAME -p $PASS -i $SCAN_ID -m SARIF -s > /raw_result.sarif
+       qiac getresult -a $URL -u $UNAME -p $PASS -i $SCAN_ID -m SARIF -s > /tmp/raw_result.sarif
     fi
  fi
  
@@ -116,7 +116,7 @@ fi
  #process result for annotation
  echo " "
  echo "SCAN RESULT"
- cd /
+ 
  #cat result.json
- python3 resultParser.py result.json
+ python /resultParser.py /tmp/result.json
 
